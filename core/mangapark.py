@@ -133,8 +133,8 @@ class MangaPark:
         r = requests.get("http://mangapark.me/search?q&orderby=a-z&page=" + str(num))
         data = r.text
         soup = BeautifulSoup(data, "html.parser")
-        mainTable = soup.find(name="div", attrs={"class": "manga-list"})
-        items = mainTable.find_all(name="div", attrs={"class": re.compile("item")})
+        main_table = soup.find(name="div", attrs={"class": "manga-list"})
+        items = main_table.find_all(name="div", attrs={"class": re.compile("item")})
         for item in items:
             src = Search()
             tditem = item.find_all(name="td")

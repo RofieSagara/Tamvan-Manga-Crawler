@@ -1,3 +1,5 @@
+
+
 class Search:
 
     __link = None
@@ -15,10 +17,10 @@ class Search:
         self.__genre = []
         self.__altern = []
 
-
     @property
     def link(self):
         return self.__link
+
     @link.setter
     def link(self, value):
         self.__link = value
@@ -26,6 +28,7 @@ class Search:
     @property
     def title(self):
         return self.__title
+
     @title.setter
     def title(self, value):
         self.__title = value
@@ -33,6 +36,7 @@ class Search:
     @property
     def pic(self):
         return self.__pic
+
     @pic.setter
     def pic(self, value):
         self.__pic = value
@@ -40,6 +44,7 @@ class Search:
     @property
     def stat(self):
         return self.__stat
+
     @stat.setter
     def stat(self, value):
         self.__stat = value
@@ -47,6 +52,7 @@ class Search:
     @property
     def relase(self):
         return self.__relase
+
     @relase.setter
     def relase(self, value):
         self.__relase = value
@@ -54,6 +60,7 @@ class Search:
     @property
     def author(self):
         return self.__author
+
     @author.setter
     def author(self, value):
         self.__author = value
@@ -61,6 +68,7 @@ class Search:
     @property
     def genre(self):
         return self.__genre
+
     @genre.setter
     def genre(self, value):
         self.__genre = value
@@ -68,6 +76,7 @@ class Search:
     @property
     def altern(self):
         return self.__altern
+
     @altern.setter
     def altern(self, value):
         self.__altern = value
@@ -75,6 +84,7 @@ class Search:
     @property
     def rate(self):
         return self.__rate
+
     @rate.setter
-    def rate(self,value):
+    def rate(self, value):
         self.__rate = value
