@@ -1,10 +1,10 @@
+from holder.manga import Manga
 
 
-class Search:
-
+class Search(Manga):
     __link = None
-    __title = None
-    __pic = None
+    __small_cover = None
+    __small_cover_local = None
     __rate = None
     __stat = None
     __relase = None
@@ -12,6 +12,8 @@ class Search:
     __genre = ""
     __altern = ""
 
+    def __init__(self, title=None):
+        Manga.__init__(self, title)
 
     @property
     def link(self):
@@ -22,20 +24,20 @@ class Search:
         self.__link = value
 
     @property
-    def title(self):
-        return self.__title
+    def small_cover(self):
+        return self.__small_cover
 
-    @title.setter
-    def title(self, value):
-        self.__title = value
+    @small_cover.setter
+    def small_cover(self, value):
+        self.__small_cover = value
 
     @property
-    def pic(self):
-        return self.__pic
+    def small_cover_local(self):
+        return self.__small_cover_local
 
-    @pic.setter
-    def pic(self, value):
-        self.__pic = value
+    @small_cover_local.setter
+    def small_cover_local(self, value):
+        self.__small_cover_local = value
 
     @property
     def stat(self):

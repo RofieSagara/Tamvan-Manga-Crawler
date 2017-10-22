@@ -136,11 +136,10 @@ class MangaPark:
         main_table = soup.find(name="div", attrs={"class": "manga-list"})
         items = main_table.find_all(name="div", attrs={"class": re.compile("item")})
         for item in items:
-            src = Search()
             tditem = item.find_all(name="td")
+            src = Search(tditem[0].a["title"])
             src.link = tditem[0].a["href"]
-            src.title = tditem[0].a["title"]
-            src.pic = tditem[0].img["src"]
+            src.small_cover = tditem[0].img["src"]
             src.rate = tditem[1].div.i.text
 
             inforad = tditem[1].find(name="div", attrs={"class": "info radius"})

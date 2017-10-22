@@ -12,14 +12,18 @@ from thread.getlistupdatethread import GetListUpdateThread
 from custom.widgetupdate import WidgetUpdate
 from thread.downloadimagethread import DownloadImageThread
 from holder.update import Update
+from holder.search import Search
 from infowindow import Ui_InfoWindow as Form
 from thread.downloadmangathread import DownloadMangaThread
+from thread.getlistbrowserlist import GetListBrowserList
 
 
 class Ui_MainWindow(QObject):
     signal = pyqtSignal(list)
     signal_image_download = pyqtSignal(int, int, Update)
     signal_download = pyqtSignal(int, int, int, int)
+    signal_browser = pyqtSignal(list)
+    signal_image_download_browser = pyqtSignal(int, int, Search)
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -40,21 +44,15 @@ class Ui_MainWindow(QObject):
 
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QtCore.QRect(200, 30, 639, 390))
-        self.tableWidget.setColumnCount(2)
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.horizontalHeader().setVisible(False)
-        self.tableWidget.horizontalHeader().setDefaultSectionSize(311)
-        self.tableWidget.horizontalHeader().setHighlightSections(True)
-        self.tableWidget.verticalHeader().setVisible(False)
-        self.tableWidget.verticalHeader().setDefaultSectionSize(120)
-        self.tableWidget.verticalHeader().setHighlightSections(True)
         self.tableWidget.clicked.connect(self.tb_onclike)
 
         self.signal.connect(self.create_widget_update)
         self.signal_image_download.connect(self.refresh_widget_update)
+        self.signal_browser.connect(self.create_widget_browser)
+        self.get_browser_thread = GetListBrowserList(self.signal_browser)
         self.get_thread = GetListUpdateThread(self.signal)
-        self.get_thread.start()
-        self.queue_helper = DownloadImageThread(self.signal_image_download)
+        #self.queue_helper = DownloadImageThread(self.signal_image_download)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -73,6 +71,9 @@ class Ui_MainWindow(QObject):
         self.signal_download.connect(self.set_prog)
         self.thread_download = DownloadMangaThread(self.signal_download)
         self.thread_download.start()
+
+        self.btnUpdate.clicked.connect(self.button_update_onclick)
+        self.btnBrowse.clicked.connect(self.button_browser_onclick)
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
@@ -91,6 +92,91 @@ class Ui_MainWindow(QObject):
         else:
             self.status.setText("Done "+str(frm)+", still "+str(total)+" Chapter left")
 
+    def button_update_onclick(self):
+        self.signal_image_download.connect(self.refresh_widget_update)
+        self.queue_helper = DownloadImageThread(self.signal_image_download)
+        self.get_thread.start()
+
+    def button_browser_onclick(self):
+        self.signal_image_download_browser.connect(self.refresh_image_browser)
+        self.queue_helper = DownloadImageThread(self.signal_image_download_browser)
+        self.get_browser_thread.start()
+
+    def create_widget_browser(self, search_list):
+        self.tableWidget.setColumnCount(1)
+        self.tableWidget.setRowCount(30)
+        self.tableWidget.clear()
+        self.tableWidget.horizontalHeader().setVisible(False)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(631)
+        self.tableWidget.horizontalHeader().setHighlightSections(True)
+        self.tableWidget.verticalHeader().setVisible(False)
+        self.tableWidget.verticalHeader().setDefaultSectionSize(151)
+        self.tableWidget.verticalHeader().setHighlightSections(True)
+        idx = 0
+        for n in search_list:
+            wUpdate = WidgetUpdate()
+            wUpdate.setGeometry(QtCore.QRect(210, 40, 631, 151))
+            wUpdate.setAutoFillBackground(True)
+            wUpdate.setObjectName("wUpdate")
+            wUpdate.tag = n
+            imgCover = QtWidgets.QGraphicsView(wUpdate)
+            imgCover.setGeometry(QtCore.QRect(10, 10, 111, 131))
+            imgCover.setObjectName("imgCover")
+            lTitle = QtWidgets.QLabel(wUpdate)
+            lTitle.setGeometry(QtCore.QRect(130, 10, 491, 21))
+            lTitle.setObjectName("lTitle")
+            lTitle.setText(n.title)
+            lAlternative = QtWidgets.QLabel(wUpdate)
+            lAlternative.setGeometry(QtCore.QRect(130, 40, 491, 41))
+            lAlternative.setObjectName("lAlternative")
+            lAutArtStRe = QtWidgets.QLabel(wUpdate)
+            lAutArtStRe.setGeometry(QtCore.QRect(130, 90, 491, 21))
+            lAutArtStRe.setObjectName("lAutArtStRe")
+            lGenre = QtWidgets.QLabel(wUpdate)
+            lGenre.setGeometry(QtCore.QRect(130, 120, 491, 17))
+            lGenre.setObjectName("lGenre")
+            lGenre.setText(n.genre[0]) #masih idex satu belum di for
+            self.tableWidget.setCellWidget(idx, 0, wUpdate)
+            self.queue_helper.add(idx, 0, n)
+            idx += 1
+        self.queue_helper.start()
+
+    def refresh_image_browser(self, x, y, update_item):
+        y = 0
+        wUpdate = WidgetUpdate()
+        wUpdate.setGeometry(QtCore.QRect(210, 40, 631, 151))
+        wUpdate.setAutoFillBackground(True)
+        wUpdate.setObjectName("wUpdate")
+        wUpdate.tag = update_item
+        qpix = QtGui.QPixmap(update_item.small_cover_local)
+        if not qpix.isNull():
+            qpix = qpix.scaled(111, 131)
+        else:
+            qpix = QtGui.QPixmap(os.path.join(os.getcwd(), "assets", "error_small.jpg"))
+            qpix = qpix.scaled(111, 131)
+        scene = QtWidgets.QGraphicsScene()
+        item = QtWidgets.QGraphicsPixmapItem(qpix)
+        imgCover = QtWidgets.QGraphicsView(wUpdate)
+        imgCover.setGeometry(QtCore.QRect(10, 10, 111, 131))
+        imgCover.setObjectName("imgCover")
+        scene.addItem(item)
+        lTitle = QtWidgets.QLabel(wUpdate)
+        lTitle.setGeometry(QtCore.QRect(130, 10, 491, 21))
+        lTitle.setObjectName("lTitle")
+        lTitle.setText(update_item.title)
+        lAlternative = QtWidgets.QLabel(wUpdate)
+        lAlternative.setGeometry(QtCore.QRect(130, 40, 491, 41))
+        lAlternative.setObjectName("lAlternative")
+        lAutArtStRe = QtWidgets.QLabel(wUpdate)
+        lAutArtStRe.setGeometry(QtCore.QRect(130, 90, 491, 21))
+        lAutArtStRe.setObjectName("lAutArtStRe")
+        lGenre = QtWidgets.QLabel(wUpdate)
+        lGenre.setGeometry(QtCore.QRect(130, 120, 491, 17))
+        lGenre.setObjectName("lGenre")
+        lGenre.setText(update_item.genre[0])  # masih idex satu belum di for
+        self.tableWidget.removeCellWidget(x, y)
+        self.tableWidget.setCellWidget(x, y, wUpdate)
+        imgCover.show()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -103,7 +189,7 @@ class Ui_MainWindow(QObject):
         print("Select :"+data.title)
         print("Position :row("+str(clicked_index.row())+") col(" + str(clicked_index.column())+")")
         dialog = QtWidgets.QDialog()
-        dialog.ui = Form(data.link)
+        dialog.ui = Form("http://mangapark.me/"+data.link)
         dialog.ui.setupUi(dialog)
         dialog.exec_()
         dialog.show()
@@ -111,7 +197,15 @@ class Ui_MainWindow(QObject):
     def create_widget_update(self, update_list):
         idx = 0
         idy = 0
+        self.tableWidget.clear()
+        self.tableWidget.setColumnCount(2)
         self.tableWidget.setRowCount(50)
+        self.tableWidget.horizontalHeader().setVisible(False)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(311)
+        self.tableWidget.horizontalHeader().setHighlightSections(True)
+        self.tableWidget.verticalHeader().setVisible(False)
+        self.tableWidget.verticalHeader().setDefaultSectionSize(120)
+        self.tableWidget.verticalHeader().setHighlightSections(True)
         for n in update_list:
             w_update = WidgetUpdate()
             w_update.setGeometry(QtCore.QRect(0, 0, 311, 120))
