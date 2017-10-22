@@ -150,11 +150,17 @@ class MangaPark:
                 if st == 1:
                     src.altern = res  # alternat
                 elif st == 2:
-                    src.author = res[0:len(res) - 2]
+                    sautor = ""
+                    for word in res[0:len(res) - 2]:
+                        sautor = sautor+", "+word
+                    src.author = sautor
                     src.stat = res[len(res) - 2]
                     src.relase = res[len(res) - 1]
                 elif st == 3:
-                    src.genre = res
+                    sgenre = ""
+                    for word in res:
+                        sgenre = sgenre+", "+word
+                    src.genre = sgenre
 
             searchresult.append(src)
         return searchresult
@@ -164,8 +170,9 @@ class MangaPark:
         field = BeautifulSoup(string, "html.parser")
         if field.b.text == "Alternative:":
             st = 1
-            txt = field.contents[0]
-            # aku butuh claning text
+            utxt = field.text
+            txt = self.__clean_atribute(utxt)
+            txt = str.replace(txt,"Alternative:","")
             return txt, st
         else:
             returnlist = []

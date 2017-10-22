@@ -8,14 +8,10 @@ class Search:
     __rate = None
     __stat = None
     __relase = None
-    __author = None
-    __genre = None
-    __altern = None
+    __author = ""
+    __genre = ""
+    __altern = ""
 
-    def __init__(self):
-        self.__author = []
-        self.__genre = []
-        self.__altern = []
 
     @property
     def link(self):
