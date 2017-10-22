@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from holder.chapter import Chapter
 from holder.info import Info
 from holder.update import Update
+from holder.search import Search
 import re
 
 
@@ -118,3 +119,60 @@ class MangaPark:
         text = str.replace(text, "\r", "")
         text = str.replace(text, "  ", "")
         return text
+
+    def get_num_page(self):
+        r = requests.get("http://mangapark.me/search?q&orderby=a-z")
+        data = r.text
+        soup = BeautifulSoup(data, "html.parser")
+        a = soup.find_all(name="ul", attrs={"class": "paging full"})[0]
+        b = a.contents[len(a.contents) - 6].text
+        return int(b[3:6])
+
+    def get_search(self, num):
+        searchresult = []
+        r = requests.get("http://mangapark.me/search?q&orderby=a-z&page=" + str(num))
+        data = r.text
+        soup = BeautifulSoup(data, "html.parser")
+        mainTable = soup.find(name="div", attrs={"class": "manga-list"})
+        items = mainTable.find_all(name="div", attrs={"class": re.compile("item")})
+        for item in items:
+            src = Search()
+            tditem = item.find_all(name="td")
+            src.link = tditem[0].a["href"]
+            src.title = tditem[0].a["title"]
+            src.pic = tditem[0].img["src"]
+            src.rate = tditem[1].div.i.text
+
+            inforad = tditem[1].find(name="div", attrs={"class": "info radius"})
+            fields = inforad.find_all(name="div", attrs={"class": re.compile("field")})
+            for field in fields:
+                res, st = self.get_field_extract(str(field))
+                if st == 1:
+                    src.altern = res  # alternat
+                elif st == 2:
+                    src.author = res[0:len(res) - 2]
+                    src.stat = res[len(res) - 2]
+                    src.relase = res[len(res) - 1]
+                elif st == 3:
+                    src.genre = res
+
+            searchresult.append(src)
+        return searchresult
+
+    def get_field_extract(self, string):
+        st = -1
+        field = BeautifulSoup(string, "html.parser")
+        if field.b.text == "Alternative:":
+            st = 1
+            txt = field.contents[0]
+            # aku butuh claning text
+            return txt, st
+        else:
+            returnlist = []
+            for a in field.find_all(name="a"):
+                returnlist.append(a.text)
+            if field.b.text == "Authors/Artists:":
+                st = 2
+            else:
+                st = 3
+            return returnlist, st
