@@ -238,3 +238,5 @@ $RECYCLE.BIN/
 Cache/
 
 \.idea/
+
+unitest\.py

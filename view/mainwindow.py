@@ -6,16 +6,18 @@
 #
 # WARNING! All changes made in this file will be lost!
 import os
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QObject
-from thread.getlistupdatethread import GetListUpdateThread
+
 from custom.widgetupdate import WidgetUpdate
-from thread.downloadimagethread import DownloadImageThread
-from holder.update import Update
 from holder.search import Search
-from infowindow import Ui_InfoWindow as Form
+from holder.update import Update
+from thread.downloadimagethread import DownloadImageThread
 from thread.downloadmangathread import DownloadMangaThread
 from thread.getlistbrowserlist import GetListBrowserList
+from thread.getlistupdatethread import GetListUpdateThread
+from view.infowindow import Ui_InfoWindow as Form
 
 
 class Ui_MainWindow(QObject):
