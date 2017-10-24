@@ -158,7 +158,7 @@ class MangaPark:
                 elif st == 3:
                     sgenre = ""
                     for word in res:
-                        sgenre = sgenre+", "+word
+                        sgenre = sgenre+word+', '
                     src.genre = sgenre
 
             searchresult.append(src)
