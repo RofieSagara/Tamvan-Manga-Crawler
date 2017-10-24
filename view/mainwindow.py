@@ -5,11 +5,9 @@
 # Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
-import os
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QObject
-
 from holder.search import Search
 from holder.update import Update
 from thread.downloadmangathread import DownloadMangaThread

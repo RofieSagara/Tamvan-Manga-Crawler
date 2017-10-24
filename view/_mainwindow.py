@@ -2,6 +2,7 @@ from custom.widgetupdate import WidgetUpdate
 from thread.downloadimagethread import DownloadImageThread
 from view.infowindow import Ui_InfoWindow as Form
 from PyQt5 import QtCore, QtGui, QtWidgets
+from custom.qscreen import QScene
 import os
 
 
@@ -91,7 +92,7 @@ def refresh_image_browser(self, x, y, update_item):
     else:
         qpix = QtGui.QPixmap(os.path.join(os.getcwd(), "assets", "error_small.jpg"))
         qpix = qpix.scaled(140, 200)
-    scene = QtWidgets.QGraphicsScene()
+    scene = QScene(idx=x, obj=self)
     item = QtWidgets.QGraphicsPixmapItem(qpix)
     img_cover = QtWidgets.QGraphicsView(scene, w_update)
     img_cover.setGeometry(QtCore.QRect(10, 10, 140, 200))
@@ -121,10 +122,18 @@ def refresh_image_browser(self, x, y, update_item):
     img_cover.show()
 
 
-def tb_onclike(self, clicked_index):
-    data = self.tableWidget.cellWidget(clicked_index.row(), clicked_index.column()).tag
+def tb_onclike(self, clicked_index, alt_index=None, alt_colu=None):
+    print(type(clicked_index))
+    print(type(clicked_index.row()))
+    if clicked_index.row() == -1:
+        row = alt_index
+        colum = alt_colu
+    else:
+        row = clicked_index.row()
+        colum = clicked_index.column()
+    data = self.tableWidget.cellWidget(row, colum).tag
     print("Select :" + data.title)
-    print("Position :row(" + str(clicked_index.row()) + ") col(" + str(clicked_index.column()) + ")")
+    print("Position :row(" + str(row) + ") col(" + str(colum) + ")")
     dialog = QtWidgets.QDialog()
     link = data.link
     if "mangapark" in link:
