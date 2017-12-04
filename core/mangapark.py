@@ -130,7 +130,7 @@ class MangaPark:
 
     def get_search(self, num):
         searchresult = []
-        r = requests.get("http://mangapark.me/search?q&orderby=a-z&page=" + str(num))
+        r = requests.get("http://mangapark.me/search?genres=harem&orderby=rating&page=" + str(num))
         data = r.text
         soup = BeautifulSoup(data, "html.parser")
         main_table = soup.find(name="div", attrs={"class": "manga-list"})

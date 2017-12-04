@@ -43,14 +43,17 @@ class DownloadMangaThread(QThread):
                     idx += 1
                 InputOutput.delete_file(lfile[0])
                 self.__number += 1
+            else:
+                self.pause = True
             if self.pause:
+                self.trigger.emit(0, 0, 0, 0)
+                print("Do Waiting")
                 self.waiting()
 
     def waiting(self):
         while True:
-            print("Waiting")
+            print("Waiting. . . .")
             lfile = InputOutput.read_all_file()
-            self.trigger.emit(0, 0, 0, 0)
             if len(lfile) > 0:
                 self.pause = False
                 break

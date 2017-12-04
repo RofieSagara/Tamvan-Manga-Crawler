@@ -14,6 +14,7 @@ from thread.downloadmangathread import DownloadMangaThread
 from thread.getlistbrowserlist import GetListBrowserList
 from thread.getlistupdatethread import GetListUpdateThread
 from view import _mainwindow
+from custom import qtablewidget
 
 
 class Ui_MainWindow(QObject):
@@ -48,7 +49,8 @@ class Ui_MainWindow(QObject):
         self.btnBrowse.setGeometry(QtCore.QRect(10, 60, 181, 25))
         self.btnBrowse.setObjectName("btnBrowse")
 
-        self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
+        # self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableWidget = qtablewidget.QTableWidgetCustom(self.centralwidget, self)
         self.tableWidget.setGeometry(QtCore.QRect(200, 30, 639, 390))
         self.tableWidget.setObjectName("tableWidget")
 

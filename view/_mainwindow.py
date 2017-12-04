@@ -7,6 +7,7 @@ import os
 
 
 def set_prog(self, frm, total, max_image, now_image):
+    print(frm,total,max_image,now_image)
     self.prog.setMaximum(max_image)
     self.prog.setValue(now_image)
     self.prog.setFormat("Downloading Image (" + str(now_image) + "/" + str(max_image) + ") %p%")
@@ -17,7 +18,7 @@ def set_prog(self, frm, total, max_image, now_image):
         self.prog.setMinimum(0)
         self.prog.setValue(0)
     else:
-        self.status.setText("Done " + str(frm) + ", still " + str(total) + " Chapter left")
+        self.status.setText("still " + str(total) + " Chapter left")
 
 
 def button_update_onclick(self):
@@ -32,20 +33,36 @@ def button_browser_onclick(self):
     self.thread_browser.start()
 
 
+def get_browser_more(self):
+    self.thread_browser.get_next()
+    self.thread_browser.start()
+
+
 def create_widget_browser(self, search_list):
-    self.tableWidget.setColumnCount(1)
-    self.tableWidget.setRowCount(30)
-    self.tableWidget.clear()
-    self.tableWidget.horizontalHeader().setVisible(False)
-    self.tableWidget.horizontalHeader().setDefaultSectionSize(631)
-    self.tableWidget.horizontalHeader().setHighlightSections(True)
-    self.tableWidget.verticalHeader().setVisible(False)
-    self.tableWidget.verticalHeader().setDefaultSectionSize(220)
-    self.tableWidget.verticalHeader().setHighlightSections(True)
-    idx = 0
+
+    if self.tableWidget.lidx == 0 and self.tableWidget.lidy == 0:
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setRowCount(1)
+        self.tableWidget.clear()
+        self.tableWidget.horizontalHeader().setVisible(False)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(155)
+        self.tableWidget.horizontalHeader().setHighlightSections(True)
+        self.tableWidget.verticalHeader().setVisible(False)
+        self.tableWidget.verticalHeader().setDefaultSectionSize(220)
+        self.tableWidget.verticalHeader().setHighlightSections(True)
+        idx = 0
+        idy = 0
+    else:
+        idx = self.tableWidget.lidx
+        idy = self.tableWidget.lidy+1
+        if idy >= 3:
+            idy = 0
+            idx += 1
+    # self.tableWidget = QtWidgets.QTableWidget()
+    # self.tableWidget.verticalScrollBar()
     for n in search_list:
         wUpdate = WidgetUpdate()
-        wUpdate.setGeometry(QtCore.QRect(210, 40, 631, 220))
+        wUpdate.setGeometry(QtCore.QRect(0, 0, 155, 220))
         wUpdate.setAutoFillBackground(True)
         wUpdate.setObjectName("wUpdate")
         wUpdate.tag = n
@@ -54,32 +71,31 @@ def create_widget_browser(self, search_list):
         item = QtWidgets.QGraphicsPixmapItem(qpix)
         scene.addItem(item)
         imgCover = QtWidgets.QGraphicsView(scene, wUpdate)
-        imgCover.setGeometry(QtCore.QRect(10, 10, 111, 131))
+        imgCover.setGeometry(QtCore.QRect(10, 10, 130, 190))
         imgCover.setObjectName("imgCover")
         lTitle = QtWidgets.QLabel(wUpdate)
-        lTitle.setGeometry(QtCore.QRect(160, 10, 491, 21))
+        lTitle.setGeometry(QtCore.QRect(10, 160, 141, 51))
         lTitle.setObjectName("lTitle")
         lTitle.setText(n.title)
-        lAlternative = QtWidgets.QLabel(wUpdate)
-        lAlternative.setGeometry(QtCore.QRect(160, 40, 491, 41))
-        lAlternative.setObjectName("lAlternative")
-        lAutArtStRe = QtWidgets.QLabel(wUpdate)
-        lAutArtStRe.setGeometry(QtCore.QRect(160, 90, 491, 21))
-        lAutArtStRe.setObjectName("lAutArtStRe")
-        lGenre = QtWidgets.QLabel(wUpdate)
-        lGenre.setGeometry(QtCore.QRect(160, 120, 491, 17))
-        lGenre.setObjectName("lGenre")
-        lGenre.setText(n.genre[0])  # masih idex satu belum di for
-        self.tableWidget.setCellWidget(idx, 0, wUpdate)
-        self.queue_helper.add(idx, 0, n)
-        idx += 1
+        lTitle.setWordWrap(True)
+        lTitle.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        lTitle.setStyleSheet("background-color: rgba(255, 255, 255, 200)")
+        self.tableWidget.setCellWidget(idx, idy, wUpdate)
+        self.tableWidget.set_last_idx_idy(idx=idx, idy=idy)
+        self.queue_helper.add(idx, idy, n)
+        if idy >= 3:
+            idy = 0
+            idx += 1
+            self.tableWidget.setRowCount(self.tableWidget.rowCount()+1)
+        else:
+            idy += 1
     self.queue_helper.start()
+    print(self.tableWidget.lidx, " and ", self.tableWidget.lidy)
 
 
 def refresh_image_browser(self, x, y, update_item):
-    y = 0
     w_update = WidgetUpdate()
-    w_update.setGeometry(QtCore.QRect(210, 40, 631, 220))
+    w_update.setGeometry(QtCore.QRect(0, 0, 155, 220))
     w_update.setAutoFillBackground(True)
     w_update.setObjectName("wUpdate")
     w_update.tag = update_item
@@ -88,35 +104,23 @@ def refresh_image_browser(self, x, y, update_item):
     w_update.setPalette(p)
     qpix = QtGui.QPixmap(update_item.small_cover_local)
     if not qpix.isNull():
-        qpix = qpix.scaled(130, 190)
+        qpix = qpix.scaled(120, 180)
     else:
         qpix = QtGui.QPixmap(os.path.join(os.getcwd(), "assets", "error_small.jpg"))
-        qpix = qpix.scaled(140, 200)
-    scene = QScene(idx=x, obj=self)
+        qpix = qpix.scaled(130, 190)
+    scene = QScene(idx=x, obj=self, idy=y)
     item = QtWidgets.QGraphicsPixmapItem(qpix)
     img_cover = QtWidgets.QGraphicsView(scene, w_update)
-    img_cover.setGeometry(QtCore.QRect(10, 10, 140, 200))
+    img_cover.setGeometry(QtCore.QRect(10, 10, 130, 190))
     img_cover.setObjectName("imgCover")
     scene.addItem(item)
     l_title = QtWidgets.QLabel(w_update)
-    l_title.setGeometry(QtCore.QRect(160, 10, 491, 21))
+    l_title.setGeometry(QtCore.QRect(10, 160, 141, 51))
     l_title.setObjectName("lTitle")
-    l_title.setText("<h4>" + update_item.title + "</h4>")
-    l_alternative = QtWidgets.QLabel(w_update)
-    l_alternative.setGeometry(QtCore.QRect(160, 40, 450, 90))
-    l_alternative.setObjectName("lAlternative")
-    l_alternative.setWordWrap(True)
-    l_alternative.setText("<b>Aternative :</b>" + update_item.altern)
-    l_autartstre = QtWidgets.QLabel(w_update)
-    l_autartstre.setGeometry(QtCore.QRect(160, 135, 450, 45))
-    l_autartstre.setObjectName("lAutArtStRe")
-    l_autartstre.setWordWrap(True)
-    l_autartstre.setText("<b>Authors/Artists :</b>" + update_item.author+"\t<b>Status :</b>" + update_item.stat+"\t<b>Release :</b>" + update_item.relase)
-    l_genre = QtWidgets.QLabel(w_update)
-    l_genre.setGeometry(QtCore.QRect(160, 185, 450, 17))
-    l_genre.setObjectName("lGenre")
-    l_genre.setWordWrap(True)
-    l_genre.setText("<b>Genre :</b>" + update_item.genre)
+    l_title.setText(update_item.title)
+    l_title.setWordWrap(True)
+    l_title.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+    l_title.setStyleSheet("background-color: rgba(255, 255, 255, 200)")
     self.tableWidget.removeCellWidget(x, y)
     self.tableWidget.setCellWidget(x, y, w_update)
     img_cover.show()
@@ -203,7 +207,7 @@ def refresh_widget_update(self, x, y, update_item):
     else:
         qpix = QtGui.QPixmap(os.path.join(os.getcwd(), "assets", "error_small.jpg"))
         qpix = qpix.scaled(60, 93)
-    scene = QtWidgets.QGraphicsScene()
+    scene = QScene(idx=x, obj=self, idy=y)
     item = QtWidgets.QGraphicsPixmapItem(qpix)
     img_cover = QtWidgets.QGraphicsView(scene, w_update)
     img_cover.setGeometry(QtCore.QRect(10, 10, 70, 100))
